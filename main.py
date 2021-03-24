@@ -84,7 +84,8 @@ def claimActivityRewards(driver):
     claimLinks(driver, links)
 
 def teardownDriver(driver):
-    print("---- done ----")
+    execution_time = round(time.time() - start_time, 2)
+    print(f"ran in => {execution_time}")
     driver.quit()
 
 def setUpDriver():
@@ -131,14 +132,12 @@ def main():
         url = getUrl()
         start_time = time.time()
         driver = setUpDriver()
-        points = getPanel(url, driver)
+        getPanel(url, driver)
         claimLoginReward(driver)
         claimActivityRewards(driver)
+        points = getPanel(url, driver)
         claimBoxesRewards(driver, points)
-        getPanel(url, driver)
-        teardownDriver(driver)
-        execution_time = round(time.time() - start_time, 2)
-        print(execution_time)
+        teardownDriver(driver, start_time)
 
 try:
     main()

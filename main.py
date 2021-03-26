@@ -73,8 +73,10 @@ def claimLinks(driver, links):
 
 def claimLoginReward(driver):
     loginReward = driver.find_element_by_id("take-login-gift")
-    loginReward.click()
-    driver.refresh()
+    print(f"loginReward => {loginReward.text}")
+    if (loginReward.text.strip() == 'Claim Supply'):
+        loginReward.click()
+        driver.refresh()
 
 def claimActivityRewards(driver):
     links = []
@@ -83,9 +85,9 @@ def claimActivityRewards(driver):
         links = printCategoryInfo(driver, links, activity)
     claimLinks(driver, links)
 
-def teardownDriver(driver):
+def teardownDriver(driver, start_time):
     execution_time = round(time.time() - start_time, 2)
-    print(f"ran in => {execution_time}")
+    print(f"ran in => {execution_time} \n")
     driver.quit()
 
 def setUpDriver():
@@ -104,13 +106,12 @@ def getPanel(url, driver):
     driver.get(url)
     return printCurrencies(driver)
 
-def claimBoxesRewards(driver, points):
-    boxes = ["/site/claim-gift?type=gold",
-             "/site/claim-gift?type=silver",
-             "/site/claim-gift?type=bronze"]
-    removeQuantity = -3 if points >= 240 else -2 if points >= 120 else -1 if points >= 80 else -3 
-    boxes = boxes[:removeQuantity]
-    print(f"boxes => {boxes}")
+def claimBoxesRewards(driver, before, after):
+    boxes = []
+    if before < 80 and after >= 80: boxes.append("/site/claim-gift?type=bronze")
+    if before < 120 and after >= 120: boxes.append("/site/claim-gift?type=silver")
+    if before < 240 and after >= 240: boxes.append("/site/claim-gift?type=gold")
+    print(f"boxes => {boxes} \n")
     claimLinks(driver, boxes)
     
 def printCurrencies(driver):
@@ -132,11 +133,11 @@ def main():
         url = getUrl()
         start_time = time.time()
         driver = setUpDriver()
-        getPanel(url, driver)
+        before = getPanel(url, driver)
         claimLoginReward(driver)
         claimActivityRewards(driver)
-        points = getPanel(url, driver)
-        claimBoxesRewards(driver, points)
+        after = getPanel(url, driver)
+        claimBoxesRewards(driver, before, after)
         teardownDriver(driver, start_time)
 
 try:
